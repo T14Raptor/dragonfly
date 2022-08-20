@@ -343,12 +343,9 @@ func (s *Session) handlePackets() {
 		if err != nil {
 			return
 		}
-		if err := s.handlePacket(pk); err != nil {
-			// An error occurred during the handling of a packet. Print the error and stop handling any more
-			// packets.
-			s.log.Debugf("failed processing packet from %v (%v): %v\n", s.conn.RemoteAddr(), s.c.Name(), err)
-			return
-		}
+		s.packetMu.Lock()
+		s.queuedPackets = append(s.queuedPackets, pk)
+		s.packetMu.Unlock()
 	}
 }
 

@@ -170,18 +170,6 @@ func (s *Session) ViewEntityMovement(e world.Entity, pos mgl64.Vec3, yaw, pitch 
 		return
 	}
 
-	if _, ok := e.(Controllable); ok {
-		s.writePacket(&packet.MovePlayer{
-			EntityRuntimeID: id,
-			Position:        vec64To32(pos.Add(entityOffset(e))),
-			Pitch:           float32(pitch),
-			Yaw:             float32(yaw),
-			HeadYaw:         float32(yaw),
-			Mode:            packet.MoveModeNormal,
-			OnGround:        onGround,
-		})
-		return
-	}
 	flags := byte(0)
 	if onGround {
 		flags |= packet.MoveFlagOnGround

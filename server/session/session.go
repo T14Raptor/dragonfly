@@ -21,6 +21,7 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol/login"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"github.com/sandertv/gophertunnel/minecraft/text"
+	"golang.org/x/exp/slices"
 	"io"
 	"net"
 	"sync"
@@ -81,6 +82,9 @@ type Session struct {
 
 	joinMessage, quitMessage *atomic.Value[string]
 
+	packetMu      sync.Mutex
+	queuedPackets []packet.Packet
+
 	closeBackground chan struct{}
 }
 
@@ -127,6 +131,36 @@ var Nop = &Session{}
 // accessing the value.
 var sessions []*Session
 var sessionMu sync.Mutex
+
+func init() {
+	go handlePackets()
+}
+
+func handlePackets() {
+	t := time.NewTicker(time.Second / 20)
+	defer t.Stop()
+	for range t.C {
+		sessionMu.Lock()
+		ses := slices.Clone(sessions)
+		sessionMu.Unlock()
+		for _, s := range ses {
+			s.packetMu.Lock()
+			queued := slices.Clone(s.queuedPackets)
+			s.queuedPackets = s.queuedPackets[:0]
+			s.packetMu.Unlock()
+
+			for _, pk := range queued {
+				if err := s.handlePacket(pk); err != nil {
+					// An error occurred during the handling of a packet. Print the error and stop handling any more
+					// packets.
+					s.log.Debugf("failed processing packet from %v (%v): %v\n", s.conn.RemoteAddr(), s.c.Name(), err)
+					_ = s.Close()
+					break
+				}
+			}
+		}
+	}
+}
 
 // selfEntityRuntimeID is the entity runtime (or unique) ID of the controllable that the session holds.
 const selfEntityRuntimeID = 1

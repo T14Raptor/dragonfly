@@ -176,7 +176,7 @@ func New(conn Conn, maxChunkRadius int, log Logger, joinMessage, quitMessage *at
 }
 
 // Tick ...
-func (s *Session) Tick() {
+func (s *Session) Tick(w *world.World) {
 	s.packetMu.Lock()
 	queued := slices.Clone(s.queuedPackets)
 	s.queuedPackets = s.queuedPackets[:0]

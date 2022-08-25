@@ -63,6 +63,9 @@ type World struct {
 
 	viewersMu sync.Mutex
 	viewers   map[*Loader]Viewer
+
+	chunkViewsMu sync.Mutex
+	chunkViewBuf map[ChunkPos][]View
 }
 
 // New creates a new initialised world. The world may be used right away, but it will not be saved or loaded
@@ -727,6 +730,15 @@ func (w *World) RemoveEntity(e Entity) {
 	for _, v := range viewers {
 		v.HideEntity(e)
 	}
+}
+
+// AddView ...
+func (w *World) AddView(vec3 mgl64.Vec3, view View) {
+	chunkPos := chunkPosFromVec3(vec3)
+
+	w.chunkViewsMu.Lock()
+	defer w.chunkViewsMu.Unlock()
+	w.chunkViewBuf[chunkPos] = append(w.chunkViewBuf[chunkPos], view)
 }
 
 // EntitiesWithin does a lookup through the entities in the chunks touched by the BBox passed, returning all

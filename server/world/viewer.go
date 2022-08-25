@@ -8,9 +8,60 @@ import (
 	"time"
 )
 
+// View ...
+type View interface {
+	View(v Viewer)
+}
+
+// EntityMovementView ...
+type EntityMovementView struct {
+	Entity     Entity
+	Pos        mgl64.Vec3
+	Yaw, Pitch float64
+	OnGround   bool
+}
+
+// View ...
+func (e EntityMovementView) View(v Viewer) {
+	v.ViewEntityMovement(e.Entity, e.Pos, e.Yaw, e.Pitch, e.OnGround)
+}
+
+// EntityVelocityView ...
+type EntityVelocityView struct {
+	Entity   Entity
+	Velocity mgl64.Vec3
+}
+
+// View ...
+func (e EntityVelocityView) View(v Viewer) {
+	v.ViewEntityVelocity(e.Entity, e.Velocity)
+}
+
+// EntityActionView ...
+type EntityActionView struct {
+	Entity Entity
+	Action EntityAction
+}
+
+// View ...
+func (e EntityActionView) View(v Viewer) {
+	v.ViewEntityAction(e.Entity, e.Action)
+}
+
+// EntityStateView ...
+type EntityStateView struct {
+	Entity Entity
+}
+
+// View ...
+func (e EntityStateView) View(v Viewer) {
+	v.ViewEntityState(e.Entity)
+}
+
 // Viewer is a viewer in the world. It can view changes that are made in the world, such as the addition of
 // entities and the changes of blocks.
 type Viewer interface {
+	Tick(w *World)
 	// ViewEntity views the entity passed. It is called for every entity that the viewer may encounter in the
 	// world, either by moving entities or by moving the viewer using a world.Loader.
 	ViewEntity(e Entity)
@@ -72,6 +123,7 @@ type NopViewer struct{}
 // Compile time check to make sure NopViewer implements Viewer.
 var _ Viewer = NopViewer{}
 
+func (NopViewer) Tick(*World)                                                   {}
 func (NopViewer) ViewEntity(Entity)                                             {}
 func (NopViewer) HideEntity(Entity)                                             {}
 func (NopViewer) ViewEntityMovement(Entity, mgl64.Vec3, float64, float64, bool) {}

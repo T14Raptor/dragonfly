@@ -54,8 +54,9 @@ func (t ticker) tick() {
 	rain, thunder, tick, tim := t.w.set.Raining, t.w.set.Thundering && t.w.set.Raining, t.w.set.CurrentTick, int(t.w.set.Time)
 	t.w.set.Unlock()
 
-	if tick%20 == 0 {
-		for _, viewer := range viewers {
+	for _, viewer := range viewers {
+		viewer.Tick(t.w)
+		if tick%20 == 0 {
 			if t.w.conf.Dim.TimeCycle() {
 				viewer.ViewTime(tim)
 			}
@@ -72,6 +73,7 @@ func (t ticker) tick() {
 	t.tickBlocksRandomly(loaders, tick)
 	t.tickScheduledBlocks(tick)
 	t.performNeighbourUpdates()
+	t.views()
 }
 
 // tickScheduledBlocks executes scheduled block updates in chunks that are currently loaded.
@@ -301,4 +303,26 @@ func (g *randUint4) uint4(r *rand.Rand) uint8 {
 	g.x >>= 4
 	g.n--
 	return uint8(val)
+}
+
+// views ...
+func (t ticker) views() {
+	t.w.chunkViewsMu.Lock()
+	defer t.w.chunkViewsMu.Unlock()
+	for pos, buf := range t.w.chunkViewBuf {
+		c, ok := t.w.chunkFromCache(pos)
+		if !ok {
+			continue
+		}
+		viewers := slices.Clone(c.v)
+		c.Unlock()
+		for _, view := range buf {
+			for _, viewer := range viewers {
+				view.View(viewer)
+			}
+		}
+	}
+	for i := range t.w.chunkViewBuf {
+		delete(t.w.chunkViewBuf, i)
+	}
 }

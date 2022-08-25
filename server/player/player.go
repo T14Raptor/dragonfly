@@ -1985,9 +1985,7 @@ func (p *Player) Move(deltaPos mgl64.Vec3, deltaYaw, deltaPitch float64) {
 		}
 		return
 	}
-	for _, v := range p.viewers() {
-		v.ViewEntityMovement(p, res, resYaw, resPitch, p.OnGround())
-	}
+	w.AddView(pos, world.EntityMovementView{Entity: p, Pos: res, Yaw: resYaw, Pitch: resPitch, OnGround: p.OnGround()})
 
 	p.pos.Store(res)
 	p.yaw.Store(resYaw)
@@ -2057,9 +2055,7 @@ func (p *Player) SetVelocity(velocity mgl64.Vec3) {
 		p.vel.Store(velocity)
 		return
 	}
-	for _, v := range p.viewers() {
-		v.ViewEntityVelocity(p, velocity)
-	}
+	p.World().AddView(p.Position(), world.EntityVelocityView{Entity: p, Velocity: velocity})
 }
 
 // Rotation returns the yaw and pitch of the player in degrees. Yaw is horizontal rotation (rotation around the

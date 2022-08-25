@@ -72,6 +72,7 @@ func (conf Config) New() *World {
 		entities:         make(map[Entity]ChunkPos),
 		viewers:          make(map[*Loader]Viewer),
 		chunks:           make(map[ChunkPos]*chunkData),
+		chunkViewBuf:     make(map[ChunkPos][]View),
 		closing:          make(chan struct{}),
 		handler:          *atomic.NewValue[Handler](NopHandler{}),
 		r:                rand.New(conf.RandSource),

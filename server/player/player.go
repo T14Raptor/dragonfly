@@ -605,9 +605,8 @@ func (p *Player) Hurt(dmg float64, source damage.Source) (float64, bool) {
 	}
 
 	w, pos := p.World(), p.Position()
-	for _, viewer := range p.viewers() {
-		viewer.ViewEntityAction(p, entity.HurtAction{})
-	}
+
+	w.AddView(pos, world.EntityActionView{Entity: p, Action: entity.HurtAction{}})
 	if fireSource {
 		w.PlaySound(pos, sound.Burning{})
 	}
@@ -1577,9 +1576,7 @@ func (p *Player) AttackEntity(e world.Entity) bool {
 		return true
 	}
 	if critical {
-		for _, v := range p.World().Viewers(living.Position()) {
-			v.ViewEntityAction(living, entity.CriticalHitAction{})
-		}
+		p.World().AddView(living.Position(), world.EntityActionView{Entity: living, Action: entity.CriticalHitAction{}})
 	}
 
 	p.Exhaust(0.1)
@@ -2671,9 +2668,7 @@ func (p *Player) SwingArm() {
 	if p.Dead() {
 		return
 	}
-	for _, v := range p.viewers() {
-		v.ViewEntityAction(p, entity.SwingArmAction{})
-	}
+	p.World().AddView(p.Position(), world.EntityActionView{Entity: p, Action: entity.SwingArmAction{}})
 }
 
 // PunchAir makes the player punch the air and plays the sound for attacking with no damage.

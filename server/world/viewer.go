@@ -58,6 +58,28 @@ func (e EntityStateView) View(v Viewer) {
 	v.ViewEntityState(e.Entity)
 }
 
+// SoundView ...
+type SoundView struct {
+	Pos   mgl64.Vec3
+	Sound Sound
+}
+
+// View ...
+func (e SoundView) View(v Viewer) {
+	v.ViewSound(e.Pos, e.Sound)
+}
+
+// ParticleView ...
+type ParticleView struct {
+	Pos      mgl64.Vec3
+	Particle Particle
+}
+
+// View ...
+func (e ParticleView) View(v Viewer) {
+	v.ViewParticle(e.Pos, e.Particle)
+}
+
 // Viewer is a viewer in the world. It can view changes that are made in the world, such as the addition of
 // entities and the changes of blocks.
 type Viewer interface {

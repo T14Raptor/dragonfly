@@ -627,9 +627,7 @@ func (w *World) AddParticle(pos mgl64.Vec3, p Particle) {
 		return
 	}
 	p.Spawn(w, pos)
-	for _, viewer := range w.Viewers(pos) {
-		viewer.ViewParticle(pos, p)
-	}
+	w.AddView(pos, ParticleView{Pos: pos, Particle: p})
 }
 
 // PlaySound plays a sound at a specific position in the world. Viewers of that position will be able to hear
@@ -639,9 +637,7 @@ func (w *World) PlaySound(pos mgl64.Vec3, s Sound) {
 	if w.Handler().HandleSound(ctx, s, pos); ctx.Cancelled() {
 		return
 	}
-	for _, viewer := range w.Viewers(pos) {
-		viewer.ViewSound(pos, s)
-	}
+	w.AddView(pos, SoundView{Pos: pos, Sound: s})
 }
 
 var (

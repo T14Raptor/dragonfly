@@ -21,7 +21,6 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol/login"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"github.com/sandertv/gophertunnel/minecraft/text"
-	"golang.org/x/exp/slices"
 	"io"
 	"net"
 	"sync"
@@ -175,24 +174,6 @@ func New(conn Conn, maxChunkRadius int, log Logger, joinMessage, quitMessage *at
 	return s
 }
 
-// Tick ...
-func (s *Session) Tick(w *world.World) {
-	s.packetMu.Lock()
-	queued := slices.Clone(s.queuedPackets)
-	s.queuedPackets = s.queuedPackets[:0]
-	s.packetMu.Unlock()
-
-	for _, pk := range queued {
-		if err := s.handlePacket(pk); err != nil {
-			// An error occurred during the handling of a packet. Print the error and stop handling any more
-			// packets.
-			s.log.Debugf("failed processing packet from %v (%v): %v\n", s.conn.RemoteAddr(), s.c.Name(), err)
-			_ = s.Close()
-			break
-		}
-	}
-}
-
 // Spawn makes the Controllable passed spawn in the world.World.
 // The function passed will be called when the session stops running.
 func (s *Session) Spawn(c Controllable, pos mgl64.Vec3, w *world.World, gm world.GameMode, onStop func(controllable Controllable)) {
@@ -331,9 +312,12 @@ func (s *Session) handlePackets() {
 		if err != nil {
 			return
 		}
-		s.packetMu.Lock()
-		s.queuedPackets = append(s.queuedPackets, pk)
-		s.packetMu.Unlock()
+		if err := s.handlePacket(pk); err != nil {
+			// An error occurred during the handling of a packet. Print the error and stop handling any more
+			// packets.
+			s.log.Debugf("failed processing packet from %v (%v): %v\n", s.conn.RemoteAddr(), s.c.Name(), err)
+			return
+		}
 	}
 }
 

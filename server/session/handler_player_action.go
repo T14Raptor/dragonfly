@@ -3,7 +3,6 @@ package session
 import (
 	"fmt"
 	"github.com/df-mc/dragonfly/server/block/cube"
-	"github.com/df-mc/dragonfly/server/entity"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
@@ -26,7 +25,7 @@ func handlePlayerAction(action int32, face int32, pos protocol.BlockPos, entityR
 	switch action {
 	case protocol.PlayerActionRespawn, protocol.PlayerActionDimensionChangeDone:
 		// Don't do anything for these actions.
-	case protocol.PlayerActionJump:
+	/*case protocol.PlayerActionJump:
 		if s.c.Sprinting() {
 			s.c.Exhaust(0.2)
 		} else {
@@ -45,7 +44,7 @@ func handlePlayerAction(action int32, face int32, pos protocol.BlockPos, entityR
 			s.c.StartSwimming()
 		}
 	case protocol.PlayerActionStopSwimming:
-		s.c.StopSwimming()
+		s.c.StopSwimming()*/
 	case protocol.PlayerActionStartBreak, protocol.PlayerActionContinueDestroyBlock:
 		s.swingingArm.Store(true)
 		defer s.swingingArm.Store(false)

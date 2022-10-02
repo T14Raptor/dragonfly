@@ -361,7 +361,7 @@ func (srv *Server) defaultGameData() minecraft.GameData {
 		PlayerPermissions:            packet.PermissionLevelMember,
 		GameRules:                    []protocol.GameRule{{Name: "naturalregeneration", Value: false}},
 		PlayerPosition:               vec64To32(srv.world.Spawn().Vec3Centre().Add(mgl64.Vec3{0, 1.62})),
-		PlayerMovementSettings:       protocol.PlayerMovementSettings{MovementType: protocol.PlayerMovementModeClient},
+		PlayerMovementSettings:       protocol.PlayerMovementSettings{MovementType: protocol.PlayerMovementModeServer, ServerAuthoritativeBlockBreaking: true},
 	}
 }
 

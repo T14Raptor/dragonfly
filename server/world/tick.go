@@ -55,6 +55,7 @@ func (t ticker) tick() {
 	t.w.set.Unlock()
 
 	for _, viewer := range viewers {
+		viewer.Tick(t.w)
 		if tick%20 == 0 {
 			if t.w.conf.Dim.TimeCycle() {
 				viewer.ViewTime(tim)

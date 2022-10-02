@@ -2006,6 +2006,8 @@ func (p *Player) Move(deltaPos mgl64.Vec3, deltaYaw, deltaPitch float64) {
 		return
 	}
 
+	w.AddView(pos, world.EntityMovementView{Entity: p, Pos: res, Yaw: resYaw, Pitch: resPitch, OnGround: p.OnGround()})
+
 	p.pos.Store(res)
 	p.yaw.Store(resYaw)
 	p.pitch.Store(resPitch)
@@ -2013,8 +2015,6 @@ func (p *Player) Move(deltaPos mgl64.Vec3, deltaYaw, deltaPitch float64) {
 	onGround := p.checkOnGround(w)
 	p.onGround.Store(onGround)
 	p.updateFallState(deltaPos[1])
-
-	w.AddView(pos, world.EntityMovementView{Entity: p, Pos: res, Yaw: resYaw, Pitch: resPitch, OnGround: onGround})
 
 	if deltaPos.Len() <= 3 {
 		// Only update velocity if the player is not moving too fast to prevent potential OOMs.

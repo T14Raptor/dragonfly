@@ -84,6 +84,7 @@ func (e ParticleView) View(v Viewer) {
 // entities and the changes of blocks.
 type Viewer interface {
 	Tick(w *World)
+	Flush()
 	// ViewEntity views the entity passed. It is called for every entity that the viewer may encounter in the
 	// world, either by moving entities or by moving the viewer using a world.Loader.
 	ViewEntity(e Entity)

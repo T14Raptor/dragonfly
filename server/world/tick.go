@@ -74,6 +74,9 @@ func (t ticker) tick() {
 	t.tickScheduledBlocks(tick)
 	t.performNeighbourUpdates()
 	t.views()
+	for _, viewer := range viewers {
+		viewer.Flush()
+	}
 }
 
 // tickScheduledBlocks executes scheduled block updates in chunks that are currently loaded.

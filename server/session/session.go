@@ -193,6 +193,10 @@ func (s *Session) Tick(w *world.World) {
 	}
 }
 
+func (s *Session) Flush() {
+	_ = s.conn.Flush()
+}
+
 // Spawn makes the Controllable passed spawn in the world.World.
 // The function passed will be called when the session stops running.
 func (s *Session) Spawn(c Controllable, pos mgl64.Vec3, w *world.World, gm world.GameMode, onStop func(controllable Controllable)) {
@@ -495,6 +499,9 @@ func (s *Session) writePacket(pk packet.Packet) {
 		return
 	}
 	_ = s.conn.WritePacket(pk)
+	if s.c.World() == nil {
+		_ = s.conn.Flush()
+	}
 }
 
 // initPlayerList initialises the player list of the session and sends the session itself to all other
